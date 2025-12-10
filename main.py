@@ -56,4 +56,28 @@ def graphique2():
     plt.ylabel('Nombre total de passages')
     plt.savefig('passage_par_mois.png')
     plt.close()
-graphique2()
+def graphique3():
+    df['Heure'] = df['dateheure'].dt.hour
+    df['Mois_Numero'] = df['dateheure'].dt.month
+
+
+    mois_dict = {
+        1: 'Jan', 2: 'Fév', 3: 'Mar', 4: 'Avr',
+        5: 'Mai', 6: 'Juin', 7: 'Juil', 8: 'Aoû',
+        9: 'Sep', 10: 'Oct', 11: 'Nov', 12: 'Déc'
+    }
+
+    #Map les mois
+    df['Mois_Abrege'] = df['Mois_Numero'].map(mois_dict)
+    #pivot table
+    graphique = df.pivot_table(index='Heure',columns='Mois_Abrege',values=df.columns[3],aggfunc='sum')
+    #ligne et reste du graphique
+    graphique.plot(kind='line', linewidth=1.5)
+    plt.title('Nombre total de passages par heure et par mois')
+    plt.xlabel('Heure')
+    plt.ylabel('Nombre total de passages')
+    plt.grid(True, linestyle=':')
+    plt.legend(title='Mois')
+    plt.savefig('tableau_croisé_dynamique.png')
+    plt.close()
+graphique3()
