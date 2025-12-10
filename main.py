@@ -2,6 +2,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 df = pd.read_csv("comptage_velo_2024.csv", low_memory=False)
 df.drop(501288, inplace=True)
+#crée colonne date + heure ensemble
+df['dateheure'] = pd.to_datetime(df['date'] + ' ' + df['heure'])
 
 
 def question1():
@@ -23,8 +25,6 @@ def question5():
 def question6():
     print(df["heure"].unique())
 def graphique1():
-    #mettre date + heure en une colonne
-    df['dateheure'] = pd.to_datetime(df['date'] + ' ' + df['heure'])
     #nouvelle colonne avec seulement heure
     df['heure2'] = df['dateheure'].dt.hour
     #grouper passage avec l'heure
@@ -36,3 +36,24 @@ def graphique1():
     plt.ylabel('Nombre total de passages')
     plt.savefig('passage_par_heure.png')
     plt.close()
+def graphique2():
+    #Prendre la colonne dateheure et garder seulement les mois
+    df['Mois_Numero'] = df['dateheure'].dt.month
+    mois_dict = {
+        1: '1_Janvier', 2: '2_Février', 3: '3_Mars', 4: '4_Avril',
+        5: '5_Mai', 6: '6_Juin', 7: '7_Juillet', 8: '8_Août',
+        9: '9_Septembre', 10: '10_Octobre', 11: '11_Novembre', 12: '12_Décembre'
+    }
+    #associer dictionnaire avec map
+    df['Mois_Nom'] = df['Mois_Numero'].map(mois_dict)
+    #Grouper les mois pour devenir numéro, on prend la première valeur de Mois_nom pour avoir ex 1_janvier, sommation des enregistrement par mois.
+    mois_passages = df.groupby('Mois_Numero').agg({'Mois_Nom': 'first', df.columns[3]: 'sum'})
+
+    #graphique
+    mois_passages.plot(x='Mois_Nom',kind='bar',legend=False,width=0.8, color='darkblue')
+    plt.title('Nombre total de passages par mois')
+    plt.xlabel('Mois')
+    plt.ylabel('Nombre total de passages')
+    plt.savefig('passage_par_mois.png')
+    plt.close()
+graphique2()
