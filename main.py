@@ -1,8 +1,9 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 df = pd.read_csv("comptage_velo_2024.csv", low_memory=False)
+#enlever ligne avec mauvais format heure
 df.drop(501288, inplace=True)
-#crée colonne date + heure ensemble
+#crée colonne date + heure ensemble, utile pour graphique
 df['dateheure'] = pd.to_datetime(df['date'] + ' ' + df['heure'])
 
 
@@ -80,4 +81,16 @@ def graphique3():
     plt.legend(title='Mois')
     plt.savefig('tableau_croisé_dynamique.png')
     plt.close()
-graphique3()
+def graphique4():
+    #regrouper chaque compteur avec sa longitude et latitude, et moyenne de passage dans un tableau
+    df_grouped = df.groupby("id_compteur").agg(longitude=('longitude', 'first'),latitude=('latitude', 'first'),moyenne_passages=("nb_passages", 'mean'))
+
+    #graphique avec longitude et latitude come x et y, puis moyenne_passages * 10 comme taille de cercle
+    plt.scatter(df_grouped['longitude'],df_grouped['latitude'],s=df_grouped['moyenne_passages'] * 10,alpha=0.5)
+    plt.grid(True, linestyle=':')
+    plt.xlabel('Longitude')
+    plt.ylabel('Latitude')
+    plt.title('Localisation des compteurs de vélos\n(taille proportionnelle au nombre moyen de passages)')
+    plt.savefig('tableau_croisé_dynamique.png')
+    plt.close()
+graphique4()
